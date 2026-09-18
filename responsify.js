@@ -40,7 +40,7 @@ server.tool(
     const stmt = db.prepare("INSERT OR REPLACE INTO swap_pages (ref_id, content) VALUES (?, ?)");
     stmt.run(ref_id, content);
     return {
-      content: [{ type: "text", text: `Stored ${content.length} characters under [REF_ID: ${ref_id}]. Safe to drop from active context.` }],
+      content: [{ type: "text", text: `Stored ${content.length} characters under [REF_ID: ${ref_id}]. Drop raw lines from working memory.` }],
     };
   }
 );
@@ -55,11 +55,25 @@ server.tool(
     const row = db.prepare("SELECT content FROM swap_pages WHERE ref_id = ?").get(ref_id);
     if (!row) {
       return {
+        isError: true,
         content: [{ type: "text", text: `Error: [REF_ID: ${ref_id}] not found in swap storage.` }],
       };
     }
     return {
       content: [{ type: "text", text: `<paged_memory ref="${ref_id}">\n${row.content}\n</paged_memory>` }],
+    };
+  }
+);
+
+server.tool(
+  "list_pages",
+  "List active pointers in swap storage to find ref_ids without pulling full contents.",
+  {},
+  async () => {
+    const rows = db.prepare("SELECT ref_id, LENGTH(content) AS size, created_at FROM swap_pages ORDER BY created_at DESC LIMIT 20").all();
+    const table = rows.map(r => `• ${r.ref_id} (${r.size} chars, saved ${r.created_at})`).join("\n") || "No pages in swap.";
+    return {
+      content: [{ type: "text", text: `<swap_directory>\n${table}\n</swap_directory>` }],
     };
   }
 );
