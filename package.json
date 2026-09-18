@@ -1,18 +1,14 @@
 {
   "name": "responsify",
   "version": "1.0.0",
-  "description": "An MCP utility that caches your context, and streams it back to the model when needed.",
-  "main": "index.js",
-  "scripts": {
-    "test": "npx @modelcontextprotocol/inspector node responsify.js"
-  },
-  "keywords": [],
-  "author": "therealsegfault",
-  "license": "ISC",
   "type": "module",
+  "bin": {
+    "rfy": "./bin/rfy.js"
+  },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.30.0",
-    "better-sqlite3": "^13.0.3",
-    "zod": "^4.6.5"
+    "better-sqlite3": "^11.10.0",
+    "express": "^4.22.3",
+    "open": "^10.2.0",
+    "systray2": "^2.1.4"
   }
 }
