@@ -1,6 +1,7 @@
 import express from "express";
 import { db } from "./db.js";
 import { pruneHarnessPayload, syncHermesDisk } from "./harness.js";
+import { startProcessWatcher } from "./watcher.js";
 
 const app = express();
 app.use(express.json({ limit: "100mb" }));
@@ -224,5 +225,8 @@ app.get("/dash", (req, res) => {
 
 // 4. Server Entry Point
 export function startServer(port = 7777) {
+  // Start background agent lifecycle detection (Hermes, Claude, Codex, Mistral)
+  startProcessWatcher();
+
   return app.listen(port);
 }
