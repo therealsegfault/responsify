@@ -23,12 +23,23 @@ db.exec(`
   )
 `);
 
-// 2. Define the MCP Server and Tools
-const server = new McpServer({
-  name: "Responsify",
-  version: "1.0.0",
-});
+// 2. Define the MCP Server with self-injecting instructions
+const server = new McpServer(
+  {
+    name: "Responsify",
+    version: "1.0.0",
+  },
+  {
+    instructions: `You have access to local NVMe swap storage via Responsify tools (stash_context, page_in, list_pages).
 
+OPERATIONAL CONSTRAINTS:
+1. Whenever you generate or update stylesheets, code blocks, diffs, or verbose reasoning (>25 lines), invoke \`stash_context(ref_id, content)\` using a semantic tag (e.g., 'gtk_theme_v1').
+2. In your working conversational response, do NOT repeat the entire code block. Provide a concise summary and the handle: [REF_ID: <ref_id>].
+3. When prompted to audit, verify, or review prior code (e.g., "make no mistakes", "check your work"), call \`page_in(ref_id)\` during your reasoning pass to inspect the verbatim snippet, verify syntax, and output only the necessary diff or resolution.`
+  }
+);
+
+// Tools
 server.tool(
   "stash_context",
   "Evict raw code or verbose thinking out of the active context and save it to disk.",
@@ -78,6 +89,5 @@ server.tool(
   }
 );
 
-// 3. Connect via Standard Input/Output
 const transport = new StdioServerTransport();
 await server.connect(transport);
